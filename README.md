@@ -9,7 +9,7 @@ A simple TUI file utility.  This program is only designed to run and compile on 
 1. [Download](https://github.com/deciduously/file_utility/releases) or otherwise obtain the compiled executable.
 1. Make it executable: `$ chmod +x file_utility`.
 1. Place it somewhere in your PATH: e.g. `$ mv file_utility $HOME/bin`.
-1. Navigate to the direcctory where you'd like the program to start: e.g. `$ cd ~`.
+1. Navigate to the directory where you'd like the program to start: e.g. `$ cd ~`.
 1. Execute the program: `file_utility`.
 
 The provided executable was compiled with [`musl libc`](https://musl.libc.org/) using the [`x86_64-unknown-linux-musl`](https://doc.rust-lang.org/edition-guide/rust-2018/platform-and-target-support/musl-support-for-fully-static-binaries.html) target and thus fully statically linked for maximum compatibility, but I've only tested this on Fedora 34 and Debian 10.
