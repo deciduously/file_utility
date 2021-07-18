@@ -9,6 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Add musl target
+      run: rustup target add x86_64-unknown-linux-musl
     - name: Build crate
       run: cargo build --verbose
     - name: Run tests
