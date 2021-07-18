@@ -95,9 +95,9 @@ impl fmt::Display for FileListing {
         } else if f_str == "\"..\"" {
             ".."
         } else {
-            &f_str[3..]
+            &f_str[3..f_str.len() - 1]
         };
-        write!(f, "{}", clipped) // truncate the leading "./"
+        write!(f, "{}", clipped) // truncate the leading "./" and trailing "
     }
 }
 

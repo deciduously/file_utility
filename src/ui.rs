@@ -17,13 +17,13 @@ use tui::{
     backend::Backend,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    text::{Span, Spans},
+    text::{Span, Spans, Text},
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
 };
 
 // The usage text isn't dynamic in any way.
-const USAGE_TEXT: &str = "Use the up and down arrows to navigate the list.  Use the left arrow to unselect all.  Use `q` to quit the program.";
+const USAGE_TEXT: &str = "\u{1F815}: up \u{1F817}: down \u{1F816}: open directory or file \u{1F814}: unselect all\nq: quit";
 
 /// Helper function to build a block
 fn create_block(title: &str) -> Block {
@@ -41,7 +41,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // First, define the layout.  Each chunk is a location where we can render a widget
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(90), Constraint::Percentage(10)].as_ref())
+        .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
         .split(f.size());
 
     draw_explorer(f, app, chunks[0]);
@@ -85,15 +85,13 @@ where
         .collect();
 
     // The block title will show the current directory
-    let listing_title = format!(
-        "Directory Listing | {:?}",
-        canonicalize(&app.current_directory)
-            .expect("Could not get absolute path from relative path")
-    );
+    let absolute = canonicalize(&app.current_directory)
+    .expect("Could not get absolute path from relative path");
+    let listing_title = &absolute.to_str().unwrap_or("\"???\"")[..absolute.to_str().unwrap().len()];
 
     // Create a List from all items, highlight the selected one
     let items = List::new(items)
-        .block(create_block(&listing_title))
+        .block(create_block(listing_title))
         .highlight_style(
             Style::default()
                 .bg(Color::LightGreen)
@@ -119,15 +117,16 @@ where
 
         // It also grabs the contents
         let contents = if !listing.0.is_directory {
-            listing
+            let s = listing
                 .0
                 .contents()
-                .unwrap_or_else(|_| "Could not read file contents.".to_string())
+                .unwrap_or_else(|_| "Could not read file contents.".to_string());
+            format!("File Contents:\n{}", s)
         } else {
-            "<directory>".to_string()
+            "".to_string()
         };
 
-        format!("{}\nFile Contents:\n{}", detail, contents)
+        format!("{}\n\n{}", detail, contents)
     } else {
         "Nothing selected.".to_string()
     };
@@ -144,7 +143,7 @@ where
     B: Backend,
 {
     // Finally, on the bottom, we want to render usage instructions
-    let usage = Paragraph::new(USAGE_TEXT)
+    let usage = Paragraph::new(Text::from(USAGE_TEXT))
         .style(Style::default())
         .block(create_block("Usage"));
     f.render_widget(usage, area);

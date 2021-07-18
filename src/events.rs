@@ -6,7 +6,8 @@
 //! Professor Gary Savard
 
 //! `events` implements a basic event handler
-//! Adapted from https://github.com/fdehau/tui-rs/blob/master/examples/util/event.rs
+//! Taken from https://github.com/fdehau/tui-rs/blob/master/examples/util/event.rs
+// I made no modification
 
 use std::io;
 use std::sync::mpsc;
