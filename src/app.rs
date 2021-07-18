@@ -7,7 +7,6 @@
 
 //! This module defines the application state
 
-
 // Ergonomic Result and Error types to simply error handling boilerplate
 use anyhow::Result;
 
