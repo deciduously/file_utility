@@ -30,4 +30,4 @@ Clone or download this repository.  Enter the project directory containing `Carg
 
 * [anyhow](https://github.com/dtolnay/anyhow) - Ergonomic error handling
 * [termion](https://gitlab.redox-os.org/redox-os/termion) - Low-level terminal interface (like ncurses but not)
-* [tui-rs](https://github.com/fdehau/tui-rs) - 
+* [tui-rs](https://github.com/fdehau/tui-rs) - Widget-based terminal user interface library.
