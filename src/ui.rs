@@ -26,7 +26,7 @@ use tui::{
 const USAGE_TEXT: &str = "Use the up and down arrows to navigate the list.  Use the left arrow to unselect all.  Use `q` to quit the program.";
 
 /// Helper function to build a block
-fn create_block<'a>(title: &'a str) -> Block<'a> {
+fn create_block(title: &str) -> Block {
     Block::default()
         .borders(Borders::ALL)
         .style(Style::default().bg(Color::Black).fg(Color::White))
@@ -110,7 +110,6 @@ fn draw_details<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-
     // The next widget is the details block, which displays information about the highlighted entry.
     let detail_text = if let Some(listing) = app.dir_list.grab_selected() {
         let detail = listing
