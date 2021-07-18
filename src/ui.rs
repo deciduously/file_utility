@@ -72,15 +72,15 @@ where
         .items
         .iter()
         .map(|i| {
-            let mut lines = vec![Spans::from(i.0.to_string())];
+            let mut spans = vec![Span::from(i.0.to_string())];
             if i.0.is_directory {
-                lines.push(Spans::from(Span::styled(
-                    "directory",
+                spans.push(Span::styled(
+                    " - directory",
                     Style::default().add_modifier(Modifier::ITALIC),
-                )));
+                ));
             }
             // Push the full text to the list
-            ListItem::new(lines).style(Style::default().fg(Color::Black).bg(Color::White))
+            ListItem::new(Spans::from(spans)).style(Style::default().fg(Color::Black).bg(Color::White))
         })
         .collect();
 

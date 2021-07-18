@@ -89,7 +89,15 @@ impl FileListing {
 // Pretty-printing - provides to_string() method as well
 impl fmt::Display for FileListing {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self.path)
+        let f_str = format!("{:?}", self.path);
+        let clipped = if f_str == "\".\"" {
+            "."
+        } else if f_str == "\"..\"" {
+            ".."
+        } else {
+            &f_str[3..]
+        };
+        write!(f, "{}", clipped) // truncate the leading "./"
     }
 }
 
@@ -98,6 +106,11 @@ fn list_of_dir(path: &Path) -> Result<StatefulList<(FileListing, usize)>> {
     // This only makes sense if the path is a directory
     let result: Vec<(FileListing, usize)> = if path.is_dir() {
         let mut vec = Vec::new();
+
+        // First, we'll always push an entry for "." and ".."
+        vec.push((FileListing::new(PathBuf::from_str(".").unwrap(), true), 0));
+        vec.push((FileListing::new(PathBuf::from_str("..").unwrap(), true), 1));
+
         for (idx, entry) in fs::read_dir(path)?.enumerate() {
             // Unwrap entry
             let entry = entry?;
@@ -105,7 +118,7 @@ fn list_of_dir(path: &Path) -> Result<StatefulList<(FileListing, usize)>> {
             let path = entry.path();
             let is_dir = path.is_dir();
             // Add the result to the return vector
-            vec.push((FileListing::new(path, is_dir), idx))
+            vec.push((FileListing::new(path, is_dir), idx + 2))
         }
         vec
     } else {
