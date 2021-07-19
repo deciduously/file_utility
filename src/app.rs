@@ -15,7 +15,7 @@ use crate::stateful_list::StatefulList;
 // Input and output (stdio, stderr, etc), OS integration, type conversions
 use std::{
     fmt,
-    fs::{self, File},
+    fs::{self, canonicalize, File},
     io::{prelude::*, BufReader},
     os::unix::fs::PermissionsExt, // Unix-specific st_mode
     path::{Path, PathBuf},
@@ -37,17 +37,21 @@ impl FileListing {
     }
 
     /// Get the file contents as a string
-    pub fn contents(&self) -> Result<String> {
-        // Open the file, store the descriptor
-        let f = File::open(&self.path)?;
-        // Initialize a buffered reader
-        let mut buf_reader = BufReader::new(f);
-        // Initialize return string
-        let mut result = String::new();
-        // Read entire file to result string
-        buf_reader.read_to_string(&mut result)?;
-        // Return result
-        Ok(result)
+    pub fn contents(&self) -> Result<Option<String>> {
+        if self.is_directory {
+            Ok(None)
+        } else {
+            // Open the file, store the descriptor
+            let f = File::open(&self.path)?;
+            // Initialize a buffered reader
+            let mut buf_reader = BufReader::new(f);
+            // Initialize return string
+            let mut result = String::new();
+            // Read entire file to result string
+            buf_reader.read_to_string(&mut result)?;
+            // Return result
+            Ok(Some(result))
+        }
     }
 
     /// Returns a multi-line string to render in the detail tab when the file is selected.
@@ -77,8 +81,8 @@ impl FileListing {
         // FIXME: this is returning an error for all files, unclear why?
         //let created = unwrap_time(m.created());
 
-        let result = format!("Path {:?} is a {} byte {}.\nLast modified: {}\nLast accessed: {}\nPermissions (as st_mode): {:o}",
-        self.path, len, d_or_f, last_accessed, last_modified, permissions
+        let result = format!("Path {:?} is a {}.\nSize: {} bytes\nLast modified: {}\nLast accessed: {}\nPermissions (as st_mode): {:o}",
+        self.path, d_or_f, len, last_accessed, last_modified, permissions
     );
 
         Ok(result)
@@ -89,7 +93,11 @@ impl FileListing {
 // Pretty-printing - provides to_string() method as well
 impl fmt::Display for FileListing {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self.path)
+        write!(
+            f,
+            "{}",
+            self.path.as_path().file_name().unwrap().to_str().unwrap()
+        ) // truncate the leading "./" and trailing "
     }
 }
 
@@ -98,6 +106,16 @@ fn list_of_dir(path: &Path) -> Result<StatefulList<(FileListing, usize)>> {
     // This only makes sense if the path is a directory
     let result: Vec<(FileListing, usize)> = if path.is_dir() {
         let mut vec = Vec::new();
+        let canonicalized = canonicalize(path).unwrap();
+        let parent = canonicalized
+            .as_path()
+            .parent()
+            .unwrap_or_else(|| canonicalized.as_path());
+
+        // First, we'll always push an entry for "." and ".."
+        vec.push((FileListing::new(canonicalized.clone(), true), 0));
+        vec.push((FileListing::new(parent.to_path_buf(), true), 1));
+
         for (idx, entry) in fs::read_dir(path)?.enumerate() {
             // Unwrap entry
             let entry = entry?;
@@ -105,7 +123,7 @@ fn list_of_dir(path: &Path) -> Result<StatefulList<(FileListing, usize)>> {
             let path = entry.path();
             let is_dir = path.is_dir();
             // Add the result to the return vector
-            vec.push((FileListing::new(path, is_dir), idx))
+            vec.push((FileListing::new(path, is_dir), idx + 2))
         }
         vec
     } else {
@@ -132,5 +150,25 @@ impl App {
             current_directory: default_path,
             dir_list,
         }
+    }
+
+    /// Change the active directory
+    pub fn change_dir(&mut self, path: &Path) -> Result<()> {
+        self.current_directory = path.to_path_buf();
+        self.dir_list = list_of_dir(&self.current_directory).unwrap();
+        Ok(())
+    }
+
+    /// Changes the current directory to whichever is selected, if any.  Takes no action if none.
+    pub fn enter_selected(&mut self) -> Result<()> {
+        if let Some((listing, _)) = self.dir_list.grab_selected() {
+            if listing.is_directory {
+                let new_path = listing.path.clone();
+                self.change_dir(&new_path)?;
+            }
+        } else {
+            // Do nothing!
+        }
+        Ok(())
     }
 }

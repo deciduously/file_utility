@@ -7,6 +7,7 @@
 
 //! A StatefulList holds a vector as well as extra state about which item is selected, if any.
 //! Adapted from https://github.com/fdehau/tui-rs/blob/master/examples/util/mod.rs
+//! I added the StatefulList::grab_selected() method, and otherwise made no modification.
 
 use tui::widgets::ListState;
 
