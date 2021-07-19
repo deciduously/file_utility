@@ -23,7 +23,7 @@ use tui::{
 };
 
 // The usage text isn't dynamic in any way.
-const USAGE_TEXT: &str = "\u{1F815}: up \u{1F817}: down \u{1F816}: open directory or file \u{1F814}: unselect all\nq: quit";
+const USAGE_TEXT: &str = "\u{1F815}/w: up \u{1F817}/s: down \u{1F816}/d: open directory or file \u{1F814}/a: unselect all\nq: quit";
 
 /// Helper function to build a block
 fn create_block(title: &str) -> Block {
@@ -41,7 +41,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // First, define the layout.  Each chunk is a location where we can render a widget
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Percentage(85), Constraint::Percentage(15)].as_ref())
+        .constraints([Constraint::Min(0), Constraint::Max(4)].as_ref())
         .split(f.size());
 
     draw_explorer(f, app, chunks[0]);
@@ -72,21 +72,29 @@ where
         .items
         .iter()
         .map(|i| {
-            let mut spans = vec![Span::from(i.0.to_string())];
-            if i.0.is_directory {
-                spans.push(Span::styled(
-                    " - directory",
-                    Style::default().add_modifier(Modifier::ITALIC),
-                ));
+            let mut spans = vec![];
+            if i.1 == 0 {
+                spans.push(Span::from("."));
+            } else if i.1 == 1 {
+                spans.push(Span::from(".."));
+            } else {
+                spans.push(Span::from(i.0.to_string()));
+                if i.0.is_directory {
+                    spans.push(Span::styled(
+                        " - directory",
+                        Style::default().add_modifier(Modifier::ITALIC),
+                    ));
+                }
             }
             // Push the full text to the list
-            ListItem::new(Spans::from(spans)).style(Style::default().fg(Color::Black).bg(Color::White))
+            ListItem::new(Spans::from(spans))
+                .style(Style::default().fg(Color::Black).bg(Color::White))
         })
         .collect();
 
     // The block title will show the current directory
     let absolute = canonicalize(&app.current_directory)
-    .expect("Could not get absolute path from relative path");
+        .expect("Could not get absolute path from relative path");
     let listing_title = &absolute.to_str().unwrap_or("\"???\"")[..absolute.to_str().unwrap().len()];
 
     // Create a List from all items, highlight the selected one
@@ -116,11 +124,7 @@ where
             .unwrap_or_else(|_| "Could not read metadata".to_string());
 
         // It also grabs the contents
-        let contents = if !listing.0.is_directory {
-            let s = listing
-                .0
-                .contents()
-                .unwrap_or_else(|_| "Could not read file contents.".to_string());
+        let contents = if let Some(s) = listing.0.contents().unwrap_or(None) {
             format!("File Contents:\n{}", s)
         } else {
             "".to_string()

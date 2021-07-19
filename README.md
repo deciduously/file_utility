@@ -12,6 +12,8 @@ A simple TUI file utility.  This program is only designed to run and compile on 
 1. Navigate to the directory where you'd like the program to start: e.g. `$ cd ~`.
 1. Execute the program: `file_utility`.
 
+If you don't see the Usage panel at the bottom, try resizing your terminal window.  It usually just works but if that seems to fix it if not.
+
 I've only tested this on Fedora 34 and Debian 10, but it is fully statically linked and I would expect it to work on many other 64-bit Linux systems.
 
 ## Development

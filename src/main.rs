@@ -8,7 +8,7 @@
 */
 
 // Ergonomic Result and Error types to simply error handling boilerplate
-use anyhow::Result;
+use anyhow::{Error, Result};
 
 // Terminal rendering and IO
 use termion::{event::Key, input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
@@ -17,7 +17,7 @@ use termion::{event::Key, input::MouseTerminal, raw::IntoRawMode, screen::Altern
 use tui::{backend::TermionBackend, Terminal};
 
 // IO
-use std::io;
+use std::io::{self, stderr, Write};
 
 // Application state
 mod app;
@@ -31,7 +31,16 @@ mod ui;
 use app::App;
 use events::{Event, Events};
 
-fn main() -> Result<()> {
+/// Print an error that occured as well as any errors that were chained to get there.
+fn print_error(err: Error) {
+    let _ = writeln!(stderr(), "error: {}", err);
+    for cause in err.chain() {
+        let _ = writeln!(stderr(), "caused by: {}", cause);
+    }
+}
+
+// Error-checked entry-point
+fn run() -> Result<()> {
     // Grab a handle to STDOUT in raw mode (no auto printing or buffering)
     let stdout = io::stdout().into_raw_mode()?;
     // Enable mouse
@@ -56,18 +65,22 @@ fn main() -> Result<()> {
         // 1. This breaks the loop and exits the program on `q` button press.
         // 2. The `up`/`down` keys change the currently selected item in the App's `items` list.
         // 3. `left` unselects the current item.
+        // 4. `right` enters the currently selected directory, or takes no action on files.
         if let Event::Input(input) = events.next()? {
             match input {
                 Key::Char('q') => {
                     break;
                 }
-                Key::Left => {
+                Key::Left | Key::Char('a') => {
                     app.dir_list.unselect();
                 }
-                Key::Down => {
+                Key::Right | Key::Char('d') => {
+                    app.enter_selected()?;
+                }
+                Key::Down | Key::Char('s') => {
                     app.dir_list.next();
                 }
-                Key::Up => {
+                Key::Up | Key::Char('w') => {
                     app.dir_list.previous();
                 }
                 _ => {} // Ignore all other key inputs
@@ -76,4 +89,12 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+// Executable entrypoint
+fn main() {
+    // If any error occurs display it before quitting
+    if let Err(e) = run() {
+        print_error(e);
+    }
 }
