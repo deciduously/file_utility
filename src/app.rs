@@ -322,7 +322,7 @@ impl App {
 mod test {
     use super::*;
     use pretty_assertions::assert_eq;
-    
+
     #[test]
     fn test_roundtrip_permissions() {
         let str = "---rwxr-x";

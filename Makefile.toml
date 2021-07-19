@@ -1,0 +1,40 @@
+[tasks.format]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--", "--emit=files"]
+
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+dependencies = ["clean"]
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+dependencies = ["clean"]
+
+[tasks.build-docs]
+dependencies = [
+    "format",
+    "build",
+    "test"
+]
+command = "cargo"
+args = ["doc", "--no-deps"]
+
+[tasks.docs]
+dependencies = ["build-docs"]
+command = "cp"
+args = ["-r", "target/x86_64-unknown-linux-musl/doc", "docs"]
+
+[tasks.emit-doc-index]
+dependencies = ["docs"]
+command = "echo"
+args = ["'<meta http-equiv=refresh content=0;url=file_utility/index.html>'", ">", "docs/index.html"]
+
+[tasks.copy-docs]
+dependencies = ["emit-doc-index"]
