@@ -1,1 +1,0 @@
-window.ALL_CRATES = ["anyhow","bitflags","cassowary","file_utility","libc","numtoa","termion","tui","unicode_segmentation","unicode_width"];
