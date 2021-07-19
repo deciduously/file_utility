@@ -21,9 +21,10 @@ use tui::{
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
 };
+use unicode_width::UnicodeWidthStr;
 
 // The usage text isn't dynamic in any way.
-const USAGE_TEXT: &str = "\u{1F815}/w: up \u{1F817}/s: down \u{1F816}/d: open directory or file \u{1F814}/a: unselect all\nq: quit";
+const USAGE_TEXT: &str = "\u{1F815}/w: up \u{1F817}/s: down \u{1F816}/d: enter directory \u{1F814}/a: unselect all\nc: copy file j: jump to directory p: change permissions q: quit";
 
 /// Helper function to build a block
 fn create_block(title: &str) -> Block {
@@ -142,13 +143,25 @@ where
 }
 
 /// Render the usage panel.
-fn draw_usage<B>(f: &mut Frame<B>, _app: &mut App, area: Rect)
+fn draw_usage<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
-    // Finally, on the bottom, we want to render usage instructions
-    let usage = Paragraph::new(Text::from(USAGE_TEXT))
-        .style(Style::default())
-        .block(create_block("Usage"));
-    f.render_widget(usage, area);
+    use crate::app::AppMode;
+    match &app.app_mode {
+        AppMode::Default => {
+            // Finally, on the bottom, we want to render usage instructions
+            let usage = Paragraph::new(Text::from(USAGE_TEXT))
+                .style(Style::default())
+                .block(create_block("Usage"));
+            f.render_widget(usage, area);
+        }
+        AppMode::Input(input_type) => {
+            let input = Paragraph::new(app.user_input.as_ref())
+                .style(Style::default().fg(Color::Yellow))
+                .block(create_block(input_type.message()));
+            f.render_widget(input, area);
+            f.set_cursor(area.x + app.user_input.width() as u16 + 1, area.y + 1);
+        }
+    }
 }

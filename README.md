@@ -12,6 +12,8 @@ A simple TUI file utility.  This program is only designed to run and compile on 
 1. Navigate to the directory where you'd like the program to start: e.g. `$ cd ~`.
 1. Execute the program: `file_utility`.
 
+You can use the `Esc` key to abort text-input mode.
+
 If you don't see the Usage panel at the bottom, try resizing your terminal window.  It usually just works but if that seems to fix it if not.
 
 I've only tested this on Fedora 34 and Debian 10, but it is fully statically linked and I would expect it to work on many other 64-bit Linux systems.
@@ -27,10 +29,12 @@ This program is implemented in Rust, using a handful of dependencies found on [c
 
 ### Build
 
-Clone or download this repository.  Enter the project directory containing `Cargo.toml` and execute `cargo run` to compile and execute the program.  The resulting executable will be located at `target/x86_64-unknown-linux-musl/debug/file_utility`.  To compile with release mode, add the `--release` flag.  Use `cargo build` to build the binary without running it.
+Clone or download this repository.  Enter the project directory containing `Cargo.toml` and execute `cargo run` to compile and execute the program.  The resulting executable will be located at `target/x86_64-unknown-linux-musl/debug/file_utility`.  To compile with release mode, add the `--release` flag.  Use `cargo build` to build the binary without running it.  Use `cargo test` to run tests.
 
 ### Crates
 
-* [anyhow](https://github.com/dtolnay/anyhow) - Ergonomic error handling
-* [termion](https://gitlab.redox-os.org/redox-os/termion) - Low-level terminal interface (like ncurses but not)
+* [anyhow](https://github.com/dtolnay/anyhow) - Ergonomic error handling.
+* [libc](https://github.com/rust-lang/libc) - FFI bindings to libc.
+* [termion](https://gitlab.redox-os.org/redox-os/termion) - Low-level terminal interface (like ncurses but not).
 * [tui-rs](https://github.com/fdehau/tui-rs) - Widget-based terminal user interface library.
+* [unicode-width](https://unicode-rs.github.io/unicode-width/unicode_width/index.html) - Unicode string width on screen.

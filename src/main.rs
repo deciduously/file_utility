@@ -17,7 +17,10 @@ use termion::{event::Key, input::MouseTerminal, raw::IntoRawMode, screen::Altern
 use tui::{backend::TermionBackend, Terminal};
 
 // IO
-use std::io::{self, stderr, Write};
+use std::{
+    io::{self, stderr, Write},
+    path::PathBuf,
+};
 
 // Application state
 mod app;
@@ -67,23 +70,45 @@ fn run() -> Result<()> {
         // 3. `left` unselects the current item.
         // 4. `right` enters the currently selected directory, or takes no action on files.
         if let Event::Input(input) = events.next()? {
-            match input {
-                Key::Char('q') => {
-                    break;
-                }
-                Key::Left | Key::Char('a') => {
-                    app.dir_list.unselect();
-                }
-                Key::Right | Key::Char('d') => {
-                    app.enter_selected()?;
-                }
-                Key::Down | Key::Char('s') => {
-                    app.dir_list.next();
-                }
-                Key::Up | Key::Char('w') => {
-                    app.dir_list.previous();
-                }
-                _ => {} // Ignore all other key inputs
+            use app::{AppMode, InputType};
+            match app.app_mode {
+                AppMode::Default => match input {
+                    Key::Char('q') => break,
+                    Key::Left | Key::Char('a') => app.dir_list.unselect(),
+                    Key::Right | Key::Char('d') => app.enter_selected()?,
+                    Key::Down | Key::Char('s') => app.dir_list.next(),
+                    Key::Up | Key::Char('w') => app.dir_list.previous(),
+                    Key::Char('p') => app.app_mode = AppMode::Input(InputType::Permission),
+                    Key::Char('c') => app.app_mode = AppMode::Input(InputType::Copy),
+                    Key::Char('j') => app.app_mode = AppMode::Input(InputType::ChangeDir),
+                    _ => {} // Ignore all other key inputs
+                },
+                AppMode::Input(input_type) => match input {
+                    Key::Char('\n') => {
+                        let user_input = app.user_input.drain(..).collect::<String>();
+                        match input_type {
+                            InputType::Copy => {
+                                app.copy_selected(PathBuf::from(&user_input).as_path())?
+                            }
+                            InputType::ChangeDir => {
+                                app.change_dir(PathBuf::from(&user_input).as_path())?
+                            }
+                            InputType::Permission => app.set_permissions(&user_input)?,
+                        }
+                        app.app_mode = AppMode::default();
+                    }
+                    Key::Char(c) => {
+                        app.user_input.push(c);
+                    }
+                    Key::Backspace => {
+                        app.user_input.pop();
+                    }
+                    Key::Esc => {
+                        let _ = app.user_input.drain(..);
+                        app.app_mode = AppMode::Default;
+                    }
+                    _ => {}
+                },
             }
         }
     }
