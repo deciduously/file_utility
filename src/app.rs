@@ -276,7 +276,7 @@ impl App {
     pub fn copy_selected(&mut self, target: &Path) -> Result<()> {
         if target.is_dir() {
             // FIXME - this should really grab the filename and build a new path
-            return Ok(())
+            return Ok(());
         }
         // First, create the destination.
         let mut target = File::create(target)?;
