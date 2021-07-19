@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["USAGE_TEXT",""]],"fn":[["create_block","Helper function to build a block"],["draw","Render the whole application."],["draw_details","Render the details pane."],["draw_dir_list","Render the selectable directory listing pane."],["draw_left_panel",""],["draw_usage","Render the usage panel."]]});

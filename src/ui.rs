@@ -1,10 +1,3 @@
-//! Linux File Utility Program
-//! Simple TUI for exploring a filesystem
-//! Benjamin Lovy
-//! July 18, 2021
-//! SDEV-345
-//! Professor Gary Savard
-
 //! This module imperatively defines the user interface.  It is computed every frame tick.
 
 use crate::app::App;

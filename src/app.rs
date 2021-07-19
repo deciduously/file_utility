@@ -1,11 +1,4 @@
-//! Linux File Utility Program
-//! Simple TUI for exploring a filesystem
-//! Benjamin Lovy
-//! July 18, 2021
-//! SDEV-345
-//! Professor Gary Savard
-
-//! This module defines the application state
+//! This module defines the application state and fiel handling logic.
 
 // Ergonomic Result and Error types to simply error handling boilerplate
 use anyhow::Result;
@@ -328,6 +321,8 @@ impl App {
 #[cfg(test)]
 mod test {
     use super::*;
+    use pretty_assertions::assert_eq;
+    
     #[test]
     fn test_roundtrip_permissions() {
         let str = "---rwxr-x";

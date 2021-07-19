@@ -1,11 +1,7 @@
-/*
-* Linux File Utility Program
-* Simple TUI for exploring a filesystem
-* Benjamin Lovy
-* July 18, 2021
-* SDEV-345
-* Professor Gary Savard
-*/
+//! # Linux File Utility Program
+//!
+//! `file_utility` is a simple terminal user interface (TUI) for exploring a filesystem.
+//!  It implements functionality for navigating a directory, viewing file metadata, changing directories, and changing file permissions.
 
 // Ergonomic Result and Error types to simply error handling boilerplate
 use anyhow::{Error, Result};
@@ -75,7 +71,7 @@ fn run() -> Result<()> {
                 AppMode::Nav => match input {
                     Key::Char('q') => break,
                     Key::Left | Key::Char('a') => app.dir_list.unselect(),
-                    Key::Right | Key::Char('d') => app.enter_selected()?,
+                    Key::Right | Key::Char('d') | Key::Char('\n') => app.enter_selected()?,
                     Key::Down | Key::Char('s') => app.dir_list.next(),
                     Key::Up | Key::Char('w') => app.dir_list.previous(),
                     Key::Char('p') => app.mode = AppMode::Input(InputType::Permission),

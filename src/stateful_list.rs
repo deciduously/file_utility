@@ -1,10 +1,3 @@
-//! Linux File Utility Program
-//! Simple TUI for exploring a filesystem
-//! Benjamin Lovy
-//! July 18, 2021
-//! SDEV-345
-//! Professor Gary Savard
-
 //! A StatefulList holds a vector as well as extra state about which item is selected, if any.
 //!
 //! Adapted from <https://github.com/fdehau/tui-rs/blob/master/examples/util/mod.rs>.

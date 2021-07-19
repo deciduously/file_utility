@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["StatefulList","Associates a ListState with a Vec that tracks which item is selected."]]});
