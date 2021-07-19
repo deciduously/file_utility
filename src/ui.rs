@@ -24,7 +24,7 @@ use tui::{
 use unicode_width::UnicodeWidthStr;
 
 // The usage text isn't dynamic in any way.
-const USAGE_TEXT: &str = "\u{1F815}/w: up \u{1F817}/s: down \u{1F816}/d: enter directory \u{1F814}/a: unselect all\nc: copy file j: jump to directory p: change permissions q: quit";
+const USAGE_TEXT: &str = "\u{1F815}/w: up \u{1F817}/s: down \u{1F816}/d: enter directory \u{1F814}/a: unselect all\nc: copy file j: jump to directory p: change permissions\nq: quit";
 
 /// Helper function to build a block
 fn create_block(title: &str) -> Block {
@@ -41,25 +41,26 @@ fn create_block(title: &str) -> Block {
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &mut App) {
     // First, define the layout.  Each chunk is a location where we can render a widget
     let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Min(0), Constraint::Max(4)].as_ref())
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(35), Constraint::Percentage(65)].as_ref())
         .split(f.size());
 
-    draw_explorer(f, app, chunks[0]);
-    draw_usage(f, app, chunks[1]);
+    draw_dir_list(f, app, chunks[0]);
+    draw_left_panel(f, app, chunks[1]);
 }
 
-fn draw_explorer<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
+///
+fn draw_left_panel<B>(f: &mut Frame<B>, app: &mut App, area: Rect)
 where
     B: Backend,
 {
     let chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Min(0), Constraint::Length(5)].as_ref())
         .split(area);
 
-    draw_dir_list(f, app, chunks[0]);
-    draw_details(f, app, chunks[1]);
+    draw_details(f, app, chunks[0]);
+    draw_usage(f, app, chunks[1]);
 }
 
 /// Render the selectable directory listing pane.
@@ -148,8 +149,8 @@ where
     B: Backend,
 {
     use crate::app::AppMode;
-    match &app.app_mode {
-        AppMode::Default => {
+    match &app.mode {
+        AppMode::Nav => {
             // Finally, on the bottom, we want to render usage instructions
             let usage = Paragraph::new(Text::from(USAGE_TEXT))
                 .style(Style::default())

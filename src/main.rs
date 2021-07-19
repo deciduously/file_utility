@@ -71,23 +71,23 @@ fn run() -> Result<()> {
         // 4. `right` enters the currently selected directory, or takes no action on files.
         if let Event::Input(input) = events.next()? {
             use app::{AppMode, InputType};
-            match app.app_mode {
-                AppMode::Default => match input {
+            match app.mode {
+                AppMode::Nav => match input {
                     Key::Char('q') => break,
                     Key::Left | Key::Char('a') => app.dir_list.unselect(),
                     Key::Right | Key::Char('d') => app.enter_selected()?,
                     Key::Down | Key::Char('s') => app.dir_list.next(),
                     Key::Up | Key::Char('w') => app.dir_list.previous(),
-                    Key::Char('p') => app.app_mode = AppMode::Input(InputType::Permission),
-                    Key::Char('c') => app.app_mode = AppMode::Input(InputType::Copy),
-                    Key::Char('j') => app.app_mode = AppMode::Input(InputType::ChangeDir),
+                    Key::Char('p') => app.mode = AppMode::Input(InputType::Permission),
+                    Key::Char('c') => app.mode = AppMode::Input(InputType::CopyFile),
+                    Key::Char('j') => app.mode = AppMode::Input(InputType::ChangeDir),
                     _ => {} // Ignore all other key inputs
                 },
                 AppMode::Input(input_type) => match input {
                     Key::Char('\n') => {
                         let user_input = app.user_input.drain(..).collect::<String>();
                         match input_type {
-                            InputType::Copy => {
+                            InputType::CopyFile => {
                                 app.copy_selected(PathBuf::from(&user_input).as_path())?
                             }
                             InputType::ChangeDir => {
@@ -95,7 +95,7 @@ fn run() -> Result<()> {
                             }
                             InputType::Permission => app.set_permissions(&user_input)?,
                         }
-                        app.app_mode = AppMode::default();
+                        app.mode = AppMode::default();
                     }
                     Key::Char(c) => {
                         app.user_input.push(c);
@@ -105,7 +105,7 @@ fn run() -> Result<()> {
                     }
                     Key::Esc => {
                         let _ = app.user_input.drain(..);
-                        app.app_mode = AppMode::Default;
+                        app.mode = AppMode::Nav;
                     }
                     _ => {}
                 },

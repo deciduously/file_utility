@@ -99,6 +99,15 @@ fn string_to_permissions(s: &str) -> Option<u16> {
     }
 }
 
+/// Helper function to unwrap times which may not come back.
+fn unwrap_time(r: std::result::Result<SystemTime, std::io::Error>) -> String {
+    if let Ok(ts) = r {
+        format!("{:?}", ts)
+    } else {
+        "never".to_string()
+    }
+}
+
 /// Each displayed entry stores some information about itself
 #[derive(Debug)]
 pub struct FileListing {
@@ -144,19 +153,9 @@ impl FileListing {
 
         let permissions = permissions_to_string(m.permissions().mode() as u16);
 
-        // Helper closure to unwrap times which may not come back.
-        let unwrap_time = |r: std::result::Result<SystemTime, std::io::Error>| {
-            if let Ok(ts) = r {
-                return format!("{:?}", ts);
-            } else {
-                return "never".to_string();
-            };
-        };
-
         let last_modified = unwrap_time(m.modified());
         let last_accessed = unwrap_time(m.accessed());
-        // FIXME: this is returning an error for all files, unclear why?
-        //let created = unwrap_time(m.created());
+        //let created = unwrap_time(m.created()); // FIXME
 
         let result = format!("Path {:?} is a {}.\nSize: {} bytes\nLast modified: {}\nLast accessed: {}\nPermissions: {}",
         self.path, d_or_f, len, last_accessed, last_modified, permissions
@@ -213,7 +212,7 @@ fn list_of_dir(path: &Path) -> Result<StatefulList<(FileListing, usize)>> {
 /// The application has a user input secondary mode
 #[derive(Debug, PartialEq)]
 pub enum AppMode {
-    Default,
+    Nav,
     Input(InputType),
 }
 
@@ -221,7 +220,7 @@ pub enum AppMode {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum InputType {
     Permission,
-    Copy,
+    CopyFile,
     ChangeDir,
 }
 
@@ -230,7 +229,7 @@ impl InputType {
     pub fn message(&self) -> &'static str {
         match self {
             InputType::ChangeDir => "Enter destination directory",
-            InputType::Copy => "Enter target",
+            InputType::CopyFile => "Enter target",
             InputType::Permission => "Enter permission string from --------- to rwxrwxrwx",
         }
     }
@@ -238,7 +237,7 @@ impl InputType {
 
 impl Default for AppMode {
     fn default() -> Self {
-        AppMode::Default
+        AppMode::Nav
     }
 }
 
@@ -247,7 +246,7 @@ impl Default for AppMode {
 /// The events are used to mutate the state.
 pub struct App {
     pub user_input: String,
-    pub app_mode: AppMode,
+    pub mode: AppMode,
     pub current_directory: PathBuf,
     pub dir_list: StatefulList<(FileListing, usize)>,
 }
@@ -260,7 +259,7 @@ impl App {
         Self {
             current_directory: default_path,
             dir_list,
-            app_mode: AppMode::default(),
+            mode: AppMode::default(),
             user_input: String::new(),
         }
     }

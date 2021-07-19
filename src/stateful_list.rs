@@ -6,7 +6,9 @@
 //! Professor Gary Savard
 
 //! A StatefulList holds a vector as well as extra state about which item is selected, if any.
-//! Adapted from https://github.com/fdehau/tui-rs/blob/master/examples/util/mod.rs
+//!
+//! Adapted from <https://github.com/fdehau/tui-rs/blob/master/examples/util/mod.rs>.
+//!
 //! I added the StatefulList::grab_selected() method, and otherwise made no modification.
 
 use tui::widgets::ListState;
@@ -18,12 +20,12 @@ pub struct StatefulList<T> {
 }
 
 impl<T> StatefulList<T> {
-    pub fn new() -> StatefulList<T> {
-        StatefulList {
-            state: ListState::default(),
-            items: Vec::new(),
-        }
-    }
+    // pub fn new() -> StatefulList<T> {
+    //     StatefulList {
+    //         state: ListState::default(),
+    //         items: Vec::new(),
+    //     }
+    // }
 
     pub fn with_items(items: Vec<T>) -> StatefulList<T> {
         StatefulList {
