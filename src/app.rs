@@ -319,6 +319,7 @@ impl App {
                 if let Some(new_mode) = string_to_permissions(new_perms) {
                     permissions.set_mode(new_mode as u32);
                 }
+                f.set_permissions(permissions)?;
             }
         }
         Ok(())
