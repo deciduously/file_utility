@@ -3,6 +3,9 @@
 // Ergonomic Result and Error types to simply error handling boilerplate
 use anyhow::Result;
 
+// DateTime handling
+use chrono::prelude::{DateTime, Utc};
+
 // For parsing/serializing file permissions
 use libc::{S_IRGRP, S_IROTH, S_IRUSR, S_IWGRP, S_IWOTH, S_IWUSR, S_IXGRP, S_IXOTH, S_IXUSR};
 
@@ -95,7 +98,9 @@ fn string_to_permissions(s: &str) -> Option<u16> {
 /// Helper function to unwrap times which may not come back.
 fn unwrap_time(r: std::result::Result<SystemTime, std::io::Error>) -> String {
     if let Ok(ts) = r {
-        format!("{:?}", ts)
+        // Convert to a readable timestamp
+        let dt: DateTime<Utc> = ts.into();
+        format!("{}", dt.format("%+"))
     } else {
         "never".to_string()
     }
