@@ -30,7 +30,7 @@ mod ui;
 use app::App;
 use events::{Event, Events};
 
-/// Print an error that occured as well as any errors that were chained to get there.
+/// Print an error that occurred as well as any errors that were chained to get there.
 fn print_error(err: Error) {
     let _ = writeln!(stderr(), "error: {}", err);
     for cause in err.chain() {
@@ -44,7 +44,7 @@ fn run() -> Result<()> {
     let stdout = io::stdout().into_raw_mode()?;
     // Enable mouse
     let stdout = MouseTerminal::from(stdout);
-    // Use a separate overaly over exisitng terminal.  On quit, old terminal is restored.
+    // Use a separate overlay over existing terminal.  On quit, old terminal is restored.
     let stdout = AlternateScreen::from(stdout);
 
     // Hook up integration to real terminal
