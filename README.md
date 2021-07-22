@@ -25,7 +25,7 @@ This program is implemented in Rust, using a handful of dependencies found on [c
 ### Requirements
 
 * **Stable [Rust](https://www.rust-lang.org/tools/install)**:  The default stable toolchain is fine.  Obtainable via `rustup` using the instructions at this link.
-* **`x86_64-unknown-linux-musl`** target: Once `rustup` is installed and ready to use, execute `rustup target add x86_64-unknown-linux-musl`.  Alternatively, you could delete or rename the `.cargo/config.toml` which forces this target.  This program should also build for the default Linux target and run fine on your machine.  To ensure this binary is as portable as possible, this repository is configured to always compile for this alternate target.  In default builds, Rust statically links all your dependenices but still dynamically links to the system `libc`, which means incompatible versions may prevent the executable from running.  Using this alternate `libc` alows even this to be statically linked, removing the runtime dependency on a minumum installed version.
+* **`x86_64-unknown-linux-musl`** target: Once `rustup` is installed and ready to use, execute `rustup target add x86_64-unknown-linux-musl`.  Alternatively, you could delete or rename the `.cargo/config.toml` which forces this target.  This program should also build for the default Linux target and run fine on your machine.  To ensure this binary is as portable as possible, this repository is configured to always compile for this alternate target.  In default builds, Rust statically links all your dependencies but still dynamically links to the system `libc`, which means incompatible versions may prevent the executable from running.  Using this alternate `libc` allows even this to be statically linked, removing the runtime dependency on a minimum installed version.
 
 ### Build
 
@@ -33,8 +33,9 @@ Clone or download this repository.  Enter the project directory containing `Carg
 
 ### Crates
 
-* [anyhow](https://github.com/dtolnay/anyhow) - Ergonomic error handling.
-* [libc](https://github.com/rust-lang/libc) - FFI bindings to libc.
-* [termion](https://gitlab.redox-os.org/redox-os/termion) - Low-level terminal interface (like ncurses but not).
-* [tui-rs](https://github.com/fdehau/tui-rs) - Widget-based terminal user interface library.
-* [unicode-width](https://unicode-rs.github.io/unicode-width/unicode_width/index.html) - Unicode string width on screen.
+* [anyhow](https://github.com/dtolnay/anyhow) - Ergonomic error handling
+* [chrono](https://github.com/chronotope/chrono) - Date and time handling
+* [libc](https://github.com/rust-lang/libc) - FFI bindings to libc
+* [termion](https://gitlab.redox-os.org/redox-os/termion) - Low-level terminal interface (like ncurses but not)
+* [tui-rs](https://github.com/fdehau/tui-rs) - Widget-based terminal user interface library
+* [unicode-width](https://unicode-rs.github.io/unicode-width/unicode_width/index.html) - Unicode string width on screen

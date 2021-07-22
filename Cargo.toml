@@ -15,6 +15,7 @@ repository = "https://github.com/deciduously/file_utility"
 [dependencies]
 
 anyhow = "1"
+chrono = "0.4"
 libc = "0.2"
 tui = "0.15"
 termion = "1.5"
